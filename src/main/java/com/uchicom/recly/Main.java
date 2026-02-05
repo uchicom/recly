@@ -1,8 +1,7 @@
 // (C) 2026 uchicom
 package com.uchicom.recly;
 
-import java.awt.Dimension;
-import javax.swing.JFrame;
+import com.uchicom.recly.ui.ControlFrame;
 import javax.swing.SwingUtilities;
 
 /**
@@ -17,10 +16,9 @@ public class Main {
   public static void main(String[] args) {
     SwingUtilities.invokeLater(
         () -> {
-          var remonFrame = new JFrame();
-          remonFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-          remonFrame.setSize(new Dimension(800, 600));
-          remonFrame.setVisible(true);
+          var frame = new ControlFrame();
+          frame.pack();
+          frame.setVisible(true);
         });
   }
 }
