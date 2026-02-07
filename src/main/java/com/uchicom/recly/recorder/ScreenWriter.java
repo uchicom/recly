@@ -30,25 +30,27 @@ public class ScreenWriter implements Callable<Long> {
   @Override
   public Long call() throws Exception {
     long count = 0;
+    var writer = ImageIO.getImageWritersByFormatName("jpeg").next();
+    var param = writer.getDefaultWriteParam();
 
-    while (true) {
-      var data = queue.take();
-      if (data == END) break;
-      var file = createJpgFile(data.nanoTime);
-      var writer = ImageIO.getImageWritersByFormatName("jpeg").next();
-      var param = writer.getDefaultWriteParam();
+    // 品質指定
+    param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+    param.setCompressionQuality(0.5f); // 0.0 ～ 1.0
+    try {
 
-      // 品質指定
-      param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-      param.setCompressionQuality(0.5f); // 0.0 ～ 1.0
+      while (true) {
+        var data = queue.take();
+        if (data == END) break;
+        var file = createJpgFile(data.nanoTime);
 
-      try (ImageOutputStream ios = ImageIO.createImageOutputStream(file)) {
-        writer.setOutput(ios);
-        writer.write(null, new IIOImage(data.bufferedImage, null, null), param);
-      } finally {
-        writer.dispose();
+        try (ImageOutputStream ios = ImageIO.createImageOutputStream(file)) {
+          writer.setOutput(ios);
+          writer.write(null, new IIOImage(data.bufferedImage, null, null), param);
+        }
+        count++;
       }
-      count++;
+    } finally {
+      writer.dispose();
     }
     System.out.println("ScreenWriter finished.");
     return count;
