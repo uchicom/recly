@@ -56,7 +56,7 @@ public class AudioService {
 
     try (var fis = new FileInputStream(pcmFile);
         var ais = createAudioInputStream(fis, pcmFile.length(), audioFormat)) {
-      var wavFile = new File(pcmFile.getName() + ".wav");
+      var wavFile = new File(pcmFile.getParent(), pcmFile.getName() + ".wav");
       AudioSystem.write(ais, Type.WAVE, wavFile);
       return wavFile;
     }
