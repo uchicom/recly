@@ -2,7 +2,9 @@
 package com.uchicom.recly.ui;
 
 import com.uchicom.recly.recorder.AudioRecorder;
+import com.uchicom.recly.recorder.ScreenRecorder;
 import com.uchicom.recly.service.AudioService;
+import com.uchicom.recly.service.ScreenService;
 import com.uchicom.ui.ResumeFrame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -23,16 +25,19 @@ import javax.swing.JPanel;
 
 public class ControlFrame extends ResumeFrame {
 
+  private final AudioService audioService;
+  private final ScreenService screenService;
   JComboBox<Mixer.Info> mixer1Combo;
   JComboBox<Mixer.Info> mixer2Combo;
-  private final AudioService audioService;
   AudioRecorder recorder1;
   AudioRecorder recorder2;
-  ExecutorService executorService = Executors.newFixedThreadPool(4);
+  ScreenRecorder screenRecorder;
+  ExecutorService executorService = Executors.newFixedThreadPool(6);
 
-  public ControlFrame(AudioService audioService) {
+  public ControlFrame(AudioService audioService, ScreenService screenService) {
     super(new File("conf/recly.properties"), "recly");
     this.audioService = audioService;
+    this.screenService = screenService;
     initComponents();
   }
 
@@ -77,6 +82,7 @@ public class ControlFrame extends ResumeFrame {
 
   void startRecording() {
     try {
+      screenRecorder = screenService.createScreenRecorder(executorService);
       var mixer1 = (Mixer.Info) mixer1Combo.getSelectedItem();
       recorder1 = audioService.createAudioRecorder(mixer1, "mixer1", executorService);
       var mixer2 = (Mixer.Info) mixer2Combo.getSelectedItem();
@@ -92,13 +98,14 @@ public class ControlFrame extends ResumeFrame {
   void stopRecording() {
 
     try {
+      var sreenCount = screenRecorder.stop();
       var recordingFile = recorder1.stop();
       recordingFile = audioService.pcmToWav(recordingFile, recorder1.audioFormat);
       if (recorder2 != null) {
         var mixerFile = recorder2.stop();
         audioService.pcmToWav(mixerFile, recorder2.audioFormat);
       }
-      showMessage(recordingFile.getName() + "を作成しました。");
+      showMessage("JPG" + sreenCount + "枚と、" + recordingFile.getName() + "を作成しました。");
     } catch (IOException e) {
       showMessage("WAV変換に失敗しました。" + e.getMessage());
     } catch (Exception e) {

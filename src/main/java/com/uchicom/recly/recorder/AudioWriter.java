@@ -23,7 +23,7 @@ public class AudioWriter implements Callable<File> {
   }
 
   File createRawFile() {
-    return new File(key + "__" + System.nanoTime() + ".raw");
+    return new File("data/" + key + "__" + System.nanoTime() + ".raw");
   }
 
   @Override
@@ -54,7 +54,7 @@ public class AudioWriter implements Callable<File> {
   }
 
   File rename(Long audioStart, File recodingFile) {
-    var newFile = new File(key + "_" + audioStart + ".raw");
+    var newFile = new File("data/" + key + "_" + audioStart + ".raw");
     recodingFile.renameTo(newFile);
     return newFile;
   }

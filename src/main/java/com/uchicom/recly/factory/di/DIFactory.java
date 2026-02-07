@@ -10,6 +10,6 @@ public class DIFactory {
   }
 
   static ControlFrame controlFrame() {
-    return new ControlFrame(ServiceFactory.audioService());
+    return new ControlFrame(ServiceFactory.audioService(), ServiceFactory.screenService());
   }
 }
